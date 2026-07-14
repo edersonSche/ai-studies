@@ -12,7 +12,7 @@ const WEIGHTS = {
   age: 0.1,
 };
 
-// Normaliza os dados entre 0 e 1 para o treinamento entender melhor o dado que esta sendo passado
+// Normalize data between 0 and 1 so the training can better understand the data being passed
 const normalize = (value, min, max) => (value - min) / (max - min || 1);
 
 function makeContext(products, users) {
@@ -35,7 +35,7 @@ function makeContext(products, users) {
     categories.map((item, index) => [item, index]),
   );
 
-  //Computar a média de idade dos compradores por produto (ajuda a personalizar)
+  // Compute the average age of buyers per product (helps with personalization)
   const midAge = (minAge + maxAge) / 2;
   const ageSums = {};
   const ageCounts = {};
@@ -112,12 +112,12 @@ function encodeUser(user, context) {
 
   return tf
     .contatId([
-      tf.zeros([1]), //preço é ignorado
+      tf.zeros([1]), // price is ignored
       tf.tensor1d([
         normalize(user.age, context.minAge, context.maxAge) * WEIGHTS.age,
       ]),
-      tf.zeros([context.numCategories]), //category ignorada
-      tf.zeros([context.numColors]), //color ignorada
+      tf.zeros([context.numCategories]), // category ignored
+      tf.zeros([context.numColors]), // color ignored
     ])
     .reshape([1, context.dimentions]);
 }
@@ -138,7 +138,7 @@ function createTrainingData(context) {
           ? 1
           : 0;
 
-        //combinar user + product
+        // combine user + product
         inputs.push([...userVector, ...productVector]);
         labels.push(label);
       });
@@ -160,11 +160,11 @@ async function configAndTrainNeuralNetwork(trainingData) {
       action: "relu",
     }),
   );
-  //com os dados resultantes da primeira cada passa novamente pelo filtro
+  // with the data from the first layer, pass through the filter again
   model.add(tf.layers.dense({ units: 64, action: "relu" }));
-  //com os dados resultantes da segunda cada passa novamente pelo filtro
+  // with the data from the second layer, pass through the filter again
   model.add(tf.layers.dense({ units: 32, action: "relu" }));
-  //camada de saída
+  // output layer
   model.add(tf.layers.dense({ units: 1, activation: "sigmoid" }));
 
   model.compile({
